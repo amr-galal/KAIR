@@ -10,6 +10,8 @@ import requests
 from models.network_swinir import SwinIR as net
 from utils import utils_image as util
 
+from google.colab.patches import cv2_imshow
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -40,10 +42,16 @@ def main():
         r = requests.get(url, allow_redirects=True)
         print(f'downloading model {args.model_path}')
         open(args.model_path, 'wb').write(r.content)
-        
+
     model = define_model(args)
     model.eval()
     model = model.to(device)
+
+    # args.model_path = "/content/KAIR/superresolution/swinir_sr_realworld_x4_gan/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN-with-dict-keys-params-and-params_ema.pth"
+    # pretrained_model = define_model(args)
+    # pretrained_model.eval()
+    # pretrained_model = pretrained_model.to(device)
+    Pretrained_dir = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Test Results/Pretrained_PSNR_small_test_set"
 
     # setup folder and path
     folder, save_dir, border, window_size = setup(args)
@@ -58,7 +66,16 @@ def main():
 
     for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
         # read image
+        imgname_ext = path.split('/')[-1]
         imgname, img_lq, img_gt = get_image_pair(args, path)  # image to HWC-BGR, float32
+        original_img = (img_lq * 255.0).round().astype(np.uint8)
+
+        H,W = img_lq.shape[:2]
+        if np.max([H,W]) > 1024:
+          factor = np.max([H,W]) / 1024
+          img_lq = cv2.resize(img_lq, (int(W//factor),int(H//factor)), interpolation = cv2.INTER_AREA)
+
+
         img_lq = np.transpose(img_lq if img_lq.shape[2] == 1 else img_lq[:, :, [2, 1, 0]], (2, 0, 1))  # HCW-BGR to CHW-RGB
         img_lq = torch.from_numpy(img_lq).float().unsqueeze(0).to(device)  # CHW-RGB to NCHW-RGB
 
@@ -73,12 +90,29 @@ def main():
             output = test(img_lq, model, args, window_size)
             output = output[..., :h_old * args.scale, :w_old * args.scale]
 
+            # output_pretrained = test(img_lq, pretrained_model, args, window_size)
+            # output_pretrained = output_pretrained[..., :h_old * args.scale, :w_old * args.scale]
+
         # save image
         output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
         if output.ndim == 3:
             output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
         output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
-        cv2.imwrite(f'{save_dir}/{imgname}_SwinIR.png', output)
+
+        # output_pretrained = output_pretrained.data.squeeze().float().cpu().clamp_(0, 1).numpy()
+        # if output_pretrained.ndim == 3:
+        #     output_pretrained = np.transpose(output_pretrained[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
+        # output_pretrained = (output_pretrained * 255.0).round().astype(np.uint8)  # float32 to uint8
+
+        # create collage
+        original_img = cv2.resize(original_img, (output.shape[1],output.shape[0]), interpolation = cv2.INTER_AREA)
+        output_pretrained = cv2.imread(os.path.join(Pretrained_dir,imgname+".png"))
+        # output = cv2.resize(output, (original_img.shape[1],original_img.shape[0]), interpolation = cv2.INTER_AREA)
+        # output_pretrained = cv2.resize(output_pretrained, (original_img.shape[1],original_img.shape[0]), interpolation = cv2.INTER_AREA)
+        collage = np.hstack([original_img, output_pretrained, output])
+        # cv2_imshow(collage)
+        save_dir = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Test Results/PSNR_all_1.6kit_300img"
+        cv2.imwrite(f'{save_dir}/{imgname}_SwinIRCollage.png', collage)
 
         # evaluate psnr/ssim/psnr_b
         if img_gt is not None:
@@ -173,10 +207,10 @@ def define_model(args):
                     img_range=255., depths=[6, 6, 6, 6, 6, 6], embed_dim=180, num_heads=[6, 6, 6, 6, 6, 6],
                     mlp_ratio=2, upsampler='', resi_connection='1conv')
         param_key_g = 'params'
-    
+
     pretrained_model = torch.load(args.model_path)
     model.load_state_dict(pretrained_model[param_key_g] if param_key_g in pretrained_model.keys() else pretrained_model, strict=True)
-        
+
     return model
 
 

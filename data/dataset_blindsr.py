@@ -4,7 +4,7 @@ import torch.utils.data as data
 import utils.utils_image as util
 import os
 from utils import utils_blindsr as blindsr
-
+import cv2
 
 class DatasetBlindSR(data.Dataset):
     '''
@@ -70,13 +70,37 @@ class DatasetBlindSR(data.Dataset):
                 img_L, img_H = blindsr.degradation_bsrgan(img_H, self.sf, lq_patchsize=self.lq_patchsize, isp_model=None)
             elif self.degradation_type == 'bsrgan_plus':
                 img_L, img_H = blindsr.degradation_bsrgan_plus(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+            elif self.degradation_type == 'custom':
+                if 'SmallText_SmallSize' in img_name:
+                    img_L, img_H = blindsr.small_text_small_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'SmallText_LargeSize' in img_name:
+                    img_L, img_H = blindsr.small_text_large_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'LargeText_LargeSize' in img_name:
+                    img_L, img_H = blindsr.large_text_large_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'LargeText_SmallSize' in img_name:
+                    img_L, img_H = blindsr.large_text_small_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
 
         else:
+            if np.max([H,W]) > 1024:
+              factor = np.max([H,W]) / 1024
+              img_H = cv2.resize(img_H, (W//factor,H//factor), interpolation = cv2.INTER_AREA)
+
             img_H = util.uint2single(img_H)
+            img_L = img_H.copy()
+
             if self.degradation_type == 'bsrgan':
                 img_L, img_H = blindsr.degradation_bsrgan(img_H, self.sf, lq_patchsize=self.lq_patchsize, isp_model=None)
             elif self.degradation_type == 'bsrgan_plus':
                 img_L, img_H = blindsr.degradation_bsrgan_plus(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+            elif self.degradation_type == 'custom':
+                if 'SmallText_SmallSize' in img_name:
+                    img_L, img_H = blindsr.small_text_small_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'SmallText_LargeSize' in img_name:
+                    img_L, img_H = blindsr.small_text_large_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'LargeText_LargeSize' in img_name:
+                    img_L, img_H = blindsr.large_text_large_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
+                elif 'LargeText_SmallSize' in img_name:
+                    img_L, img_H = blindsr.large_text_small_size_pipeline(img_H, self.sf, shuffle_prob=self.shuffle_prob, use_sharp=self.use_sharp, lq_patchsize=self.lq_patchsize)
 
         # ------------------------------------
         # L/H pairs, HWC to CHW, numpy to tensor

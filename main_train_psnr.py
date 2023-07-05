@@ -18,6 +18,8 @@ from utils.utils_dist import get_dist_info, init_dist
 from data.select_dataset import define_Dataset
 from models.select_model import define_Model
 
+import wandb
+import shutil
 
 '''
 # --------------------------------------------
@@ -68,7 +70,12 @@ def main(json_path='options/train_msrresnet_psnr.json'):
     opt['path']['pretrained_netE'] = init_path_E
     init_iter_optimizerG, init_path_optimizerG = option.find_last_checkpoint(opt['path']['models'], net_type='optimizerG')
     opt['path']['pretrained_optimizerG'] = init_path_optimizerG
-    current_step = max(init_iter_G, init_iter_E, init_iter_optimizerG)
+    # comment the following lines when starting from new checkpoints with the format <iter_num>_<net_type>.pth
+    opt['path']['pretrained_netG'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_psnr/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_PSNR-with-dict-keys-params-and-params_ema.pth'
+    opt['path']['pretrained_netE'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_psnr/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_PSNR-with-dict-keys-params-and-params_ema.pth'
+
+    # current_step = max(init_iter_G, init_iter_E, init_iter_optimizerG)
+    current_step = 0
 
     border = opt['scale']
     # --<--<--<--<--<--<--<--<--<--<--<--<--<-
@@ -92,6 +99,9 @@ def main(json_path='options/train_msrresnet_psnr.json'):
         utils_logger.logger_info(logger_name, os.path.join(opt['path']['log'], logger_name+'.log'))
         logger = logging.getLogger(logger_name)
         logger.info(option.dict2str(opt))
+
+    # start a new wandb run to track this script
+    wandb.init(project="text-enhancement")
 
     # ----------------------------------------
     # seed
@@ -193,8 +203,11 @@ def main(json_path='options/train_msrresnet_psnr.json'):
             if current_step % opt['train']['checkpoint_print'] == 0 and opt['rank'] == 0:
                 logs = model.current_log()  # such as loss
                 message = '<epoch:{:3d}, iter:{:8,d}, lr:{:.3e}> '.format(epoch, current_step, model.current_learning_rate())
+                # log metrics to wandb
+                wandb.log({"train":{"epoch": epoch, "iter": current_step, "lr": model.current_learning_rate()}})
                 for k, v in logs.items():  # merge log information into message
                     message += '{:s}: {:.3e} '.format(k, v)
+                    wandb.log({k:v})
                 logger.info(message)
 
             # -------------------------------
@@ -203,6 +216,10 @@ def main(json_path='options/train_msrresnet_psnr.json'):
             if current_step % opt['train']['checkpoint_save'] == 0 and opt['rank'] == 0:
                 logger.info('Saving the model.')
                 model.save(current_step)
+                # save model data to drive
+                dir_name = "/content/KAIR/superresolution/swinir_sr_realworld_x4_psnr"
+                output_filename = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Checkpoints/PSNR/alldist_sharp1_300img"
+                shutil.make_archive(output_filename, 'zip', dir_name)
 
             # -------------------------------
             # 6) testing
@@ -230,8 +247,11 @@ def main(json_path='options/train_msrresnet_psnr.json'):
                     # -----------------------
                     # save estimated image E
                     # -----------------------
-                    save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format(img_name, current_step))
+                    save_img_path = os.path.join(img_dir, '{:s}_{:d}_E.png'.format(img_name, current_step))
                     util.imsave(E_img, save_img_path)
+
+                    save_img_path = os.path.join(img_dir, '{:s}_{:d}_H.png'.format(img_name, current_step))
+                    util.imsave(H_img, save_img_path)
 
                     # -----------------------
                     # calculate PSNR
@@ -239,6 +259,8 @@ def main(json_path='options/train_msrresnet_psnr.json'):
                     current_psnr = util.calculate_psnr(E_img, H_img, border=border)
 
                     logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB'.format(idx, image_name_ext, current_psnr))
+                    # log metrics to wandb
+                    wandb.log({"test":{"img_index": idx, "img_name": image_name_ext, "current_psnr": current_psnr}})
 
                     avg_psnr += current_psnr
 
@@ -246,6 +268,8 @@ def main(json_path='options/train_msrresnet_psnr.json'):
 
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB\n'.format(epoch, current_step, avg_psnr))
+                # log metrics to wandb
+                wandb.log({"test":{"epoch": epoch, "iter": current_step, "avg_psnr": avg_psnr}})
 
 if __name__ == '__main__':
     main()
