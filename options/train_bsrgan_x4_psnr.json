@@ -9,8 +9,8 @@
 
   , "path": {
     "root": "superresolution"            // "denoising" | "superresolution" | "dejpeg"
-    , "pretrained_netG": "/content/KAIR/superresolution/swinir_sr_realworld_x4_psnr/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_PSNR-with-dict-keys-params-and-params_ema.pth"      // path of pretrained model
-    , "pretrained_netE": "/content/KAIR/superresolution/swinir_sr_realworld_x4_psnr/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_PSNR-with-dict-keys-params-and-params_ema.pth"      // path of pretrained model
+    , "pretrained_netG": null      // path of pretrained model
+    , "pretrained_netE": null      // path of pretrained model
   }
 
   , "datasets": {
@@ -33,13 +33,13 @@
     , "test": {
       "name": "test_dataset"            // just name
       , "dataset_type": "sr"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
-      , "dataroot_H": "testsets/custom_set"  // path of H testing dataset
+      , "dataroot_H": "testsets/custom_set_small"  // path of H testing dataset
       , "dataroot_L": null              // path of L testing dataset
 
     }
   }
 
-   , "netG": {
+  , "netG": {
     "net_type": "swinir"
     , "upscale": 4
     , "in_chans": 3 // init_path_optimizerG
@@ -62,7 +62,7 @@
     , "E_decay": 0.999                  // Exponential Moving Average for netG: set 0 to disable; default setting 0.999
 
     , "G_optimizer_type": "adam"        // fixed, adam is enough
-    , "G_optimizer_lr": 0.75e-6         // learning rate (original is 2e-4)
+    , "G_optimizer_lr": 0.75e-6          // learning rate
     , "G_optimizer_wd": 0               // weight decay, default 0
     , "G_optimizer_clipgrad": null      // unused
     , "G_optimizer_reuse": true         //
