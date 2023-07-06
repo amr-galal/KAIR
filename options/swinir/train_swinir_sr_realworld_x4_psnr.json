@@ -20,7 +20,7 @@
       , "dataroot_H": "trainsets/trainH"// path of H training dataset. DIV2K (800 training images) + Flickr2K (2650 images) + + OST (10324 images)
       , "dataroot_L": null            // path of L training dataset
 
-      , "degradation_type": "bsrgan"    // "bsrgan" | "bsrgan_plus"
+      , "degradation_type": "custom"    // "bsrgan" | "bsrgan_plus" | "custom"
       , "H_size": 256                   // patch_size 256 | 288 | 320
       , "shuffle_prob": 0.1             //
       , "lq_patchsize": 64
@@ -33,8 +33,8 @@
     , "test": {
       "name": "test_dataset"            // just name
       , "dataset_type": "sr"         // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "jpeg"
-      , "dataroot_H": "testsets/Set5/HR"  // path of H testing dataset
-      , "dataroot_L": "testsets/Set5/LR_bicubic/X4"              // path of L testing dataset
+      , "dataroot_H": "testsets/custom_set_small"  // path of H testing dataset
+      , "dataroot_L": null              // path of L testing dataset
 
     }
   }
@@ -42,17 +42,16 @@
   , "netG": {
     "net_type": "swinir"
     , "upscale": 4
-    , "in_chans": 3
+    , "in_chans": 3 // init_path_optimizerG
     , "img_size": 64
     , "window_size": 8
     , "img_range": 1.0
-    , "depths": [6, 6, 6, 6, 6, 6]
-    , "embed_dim": 180
-    , "num_heads": [6, 6, 6, 6, 6, 6]
+    , "depths": [6, 6, 6, 6, 6, 6, 6, 6, 6]
+    , "embed_dim": 240
+    , "num_heads": [8, 8, 8, 8, 8, 8, 8, 8, 8]
     , "mlp_ratio": 2
     , "upsampler": "nearest+conv"        // "pixelshuffle" | "pixelshuffledirect" | "nearest+conv" | null
-    , "resi_connection": "1conv"        // "1conv" | "3conv"
-
+    , "resi_connection": "3conv"        // "1conv" | "3conv"
     , "init_type": "default"
   }
 
@@ -63,14 +62,14 @@
     , "E_decay": 0.999                  // Exponential Moving Average for netG: set 0 to disable; default setting 0.999
 
     , "G_optimizer_type": "adam"        // fixed, adam is enough
-    , "G_optimizer_lr": 2e-4            // learning rate
+    , "G_optimizer_lr": 0.75e-6          // learning rate
     , "G_optimizer_wd": 0               // weight decay, default 0
     , "G_optimizer_clipgrad": null      // unused
     , "G_optimizer_reuse": true         //
 
     , "G_scheduler_type": "MultiStepLR" // "MultiStepLR" is enough
-    , "G_scheduler_milestones": [500000, 800000, 900000, 950000, 1000000]
-    , "G_scheduler_gamma": 0.5
+    , "G_scheduler_milestones": [2500, 5000, 7500]
+    , "G_scheduler_gamma": 0.25
 
     , "G_regularizer_orthstep": null    // unused
     , "G_regularizer_clipstep": null    // unused
@@ -78,8 +77,8 @@
     , "G_param_strict": true
     , "E_param_strict": true
 
-    , "checkpoint_test": 5000           // for testing
-    , "checkpoint_save": 5000           // for saving model
-    , "checkpoint_print": 200           // for print
+    , "checkpoint_test": 10000 // skip testing
+    , "checkpoint_save": 5000
+    , "checkpoint_print": 200
   }
 }
