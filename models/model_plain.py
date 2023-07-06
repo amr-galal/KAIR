@@ -105,12 +105,36 @@ class ModelPlain(ModelBase):
     # define optimizer
     # ----------------------------------------
     def define_optimizer(self):
+        """
+        (conv_before_upsample): Sequential(
+        (0): Conv2d(240, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (1): LeakyReLU(negative_slope=0.01, inplace=True)
+        )
+        (conv_up1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (conv_up2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (conv_hr): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (conv_last): Conv2d(64, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        (lrelu): LeakyReLU(negative_slope=0.2, inplace=True)
+    
+        
+        """
+        # set the learnable parameters
+        learnable_layers = [
+            "conv_up1", "conv_up2", "conv_hr", "conv_last",
+        ]
+        for name, param in self.netG.named_parameters():
+            if any([True if ll in name else False for ll in learnable_layers]):       
+                param.requires_grad = True
+            else: 
+                param.requires_grad = False
+
+        # setup the optimizer on the learnable parameters
         G_optim_params = []
         for k, v in self.netG.named_parameters():
             if v.requires_grad:
                 G_optim_params.append(v)
-            else:
-                print('Params [{:s}] will not optimize.'.format(k))
+                print('Params [{:s}] will be optimized.'.format(k))
+
         if self.opt_train['G_optimizer_type'] == 'adam':
             self.G_optimizer = Adam(G_optim_params, lr=self.opt_train['G_optimizer_lr'],
                                     betas=self.opt_train['G_optimizer_betas'],
