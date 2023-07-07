@@ -112,6 +112,7 @@ def main():
         collage = np.hstack([original_img, output_pretrained, output])
         # cv2_imshow(collage)
         save_dir = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Test Results/PSNR_all_1.6kit_300img"
+        os.makedirs(save_dir, exist_ok=True)
         cv2.imwrite(f'{save_dir}/{imgname}_SwinIRCollage.png', collage)
 
         # evaluate psnr/ssim/psnr_b
