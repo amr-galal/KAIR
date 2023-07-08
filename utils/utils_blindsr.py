@@ -657,7 +657,7 @@ def small_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     for i in shuffle_order:
         if i == 0:
           # pass
-            img = modified_add_blur(img, sf=sf, ksize_param=0)
+            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(3, 4))
         # elif i == 1:
         #     # pass
         #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
@@ -749,7 +749,7 @@ def small_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     for i in shuffle_order:
         if i == 0:
             # pass
-            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(0, 1))
+            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(6, 7))
         # elif i == 1:
         #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
         # elif i == 2:
@@ -835,7 +835,7 @@ def large_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     for i in shuffle_order:
         if i == 0:
             # pass
-            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(1, 2))
+            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(7, 8))
         # elif i == 1:
         #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
         # elif i == 2:
@@ -917,7 +917,7 @@ def large_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     for i in shuffle_order:
         if i == 0:
           # pass
-            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(2, 3))
+            img = modified_add_blur(img, sf=sf, ksize_param=random.randint(8, 9))
         # elif i == 1:
         #     # pass
         #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
