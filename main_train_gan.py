@@ -76,12 +76,12 @@ def main(json_path='options/train_msrresnet_gan.json'):
     opt['path']['pretrained_optimizerD'] = init_path_optimizerD
 
     # comment the following lines when starting from new checkpoints with the format <iter_num>_<net_type>.pth
-    # opt['path']['pretrained_netG'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_gan/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN-with-dict-keys-params-and-params_ema.pth'
-    # opt['path']['pretrained_netE'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_gan/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN-with-dict-keys-params-and-params_ema.pth'
+    opt['path']['pretrained_netG'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_gan/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN-with-dict-keys-params-and-params_ema.pth'
+    opt['path']['pretrained_netE'] = '/content/KAIR/superresolution/swinir_sr_realworld_x4_gan/models/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN-with-dict-keys-params-and-params_ema.pth'
 
     # current_step = max(init_iter_G, init_iter_D, init_iter_E, init_iter_optimizerG, init_iter_optimizerD)
-
     current_step = 0
+
     border = opt['scale']
     # --<--<--<--<--<--<--<--<--<--<--<--<--<-
 
@@ -225,7 +225,7 @@ def main(json_path='options/train_msrresnet_gan.json'):
                 model.save(current_step)
                 # save model data to drive
                 dir_name = "/content/KAIR/superresolution/swinir_sr_realworld_x4_gan"
-                output_filename = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Checkpoints/GAN/resize_blur_patchgan_9kit_500img"
+                output_filename = "/content/drive/MyDrive/Single Image Super Resolution/Text Super Resolution/Model Checkpoints/GAN/resize_blur_unet_9kit_500img"
                 shutil.make_archive(output_filename, 'zip', dir_name)
 
             # -------------------------------
