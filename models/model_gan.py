@@ -152,14 +152,27 @@ class ModelGAN(ModelBase):
     # define optimizer, G and D
     # ----------------------------------------
     def define_optimizer(self):
+
+       # G-model: set the learnable parameters
+        learnable_layers = [
+            "conv_up1", "conv_up2", "conv_hr", "conv_last",
+        ]
+        for name, param in self.netG.named_parameters():
+            if any([True if ll in name else False for ll in learnable_layers]):       
+                param.requires_grad = True
+            else: 
+                param.requires_grad = False
+
+        # G-model: setup the optimizer on the learnable parameters
         G_optim_params = []
         for k, v in self.netG.named_parameters():
             if v.requires_grad:
                 G_optim_params.append(v)
-            else:
-                print('Params [{:s}] will not optimize.'.format(k))
+                print('Params [{:s}] will be optimized.'.format(k))
 
         self.G_optimizer = Adam(G_optim_params, lr=self.opt_train['G_optimizer_lr'], weight_decay=0)
+        
+        # D-model
         self.D_optimizer = Adam(self.netD.parameters(), lr=self.opt_train['D_optimizer_lr'], weight_decay=0)
 
     # ----------------------------------------
