@@ -225,7 +225,7 @@ def fspecial(filter_type, *args, **kwargs):
 
 
 
-def add_sharpening(img, weight=1.0, radius=50, threshold=10):
+def add_sharpening(img, weight=.7, radius=50, threshold=10):
     """USM sharpening. borrowed from real-ESRGAN
     Input image: I; Blurry image: B.
     1. K = I + weight * (I - B)
@@ -658,17 +658,17 @@ def small_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
         if i == 0:
           # pass
             img = modified_add_blur(img, sf=sf, ksize_param=random.randint(3, 4))
-        # elif i == 1:
-        #     # pass
-        #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
-        # elif i == 2:
-        #     if random.random() < poisson_prob:
-        #         img = add_Poisson_noise(img)
-        # elif i == 3:
-        #     if random.random() < speckle_prob:
-        #         img = add_speckle_noise(img)
-        # else:
-            # print('check the shuffle!')
+        elif i == 1:
+            # pass
+            img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
+        elif i == 2:
+            if random.random() < poisson_prob:
+                img = add_Poisson_noise(img)
+        elif i == 3:
+            if random.random() < speckle_prob:
+                img = add_speckle_noise(img)
+        else:
+            print('check the shuffle!')
 
     # # print("after degredation: ", img.shape, hq.shape)
 
@@ -678,7 +678,7 @@ def small_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     # print("after resizing: ", img.shape, hq.shape)
 
     # add final JPEG compression noise
-    # img = modified_add_JPEG_noise(img, quality_factor=random.randint(60, 95))
+    img = modified_add_JPEG_noise(img, quality_factor=random.randint(60, 95))
 
     # random crop
     img, hq = random_crop(img, hq, sf, lq_patchsize)
@@ -750,16 +750,16 @@ def small_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
         if i == 0:
             # pass
             img = modified_add_blur(img, sf=sf, ksize_param=random.randint(6, 7))
-        # elif i == 1:
-        #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
-        # elif i == 2:
-        #     if random.random() < poisson_prob:
-        #         img = add_Poisson_noise(img)
-        # elif i == 3:
-        #     if random.random() < speckle_prob:
-        #         img = add_speckle_noise(img)
-        # else:
-            # print('check the shuffle!')
+        elif i == 1:
+            img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
+        elif i == 2:
+            if random.random() < poisson_prob:
+                img = add_Poisson_noise(img)
+        elif i == 3:
+            if random.random() < speckle_prob:
+                img = add_speckle_noise(img)
+        else:
+            print('check the shuffle!')
 
     # print("after degredation: ", img.shape, hq.shape)
 
@@ -774,7 +774,7 @@ def small_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     # print("after resizing: ", img.shape, hq.shape)
 
     # add final JPEG compression noise
-    # img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
+    img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
 
     # random crop
     img, hq = random_crop(img, hq, sf, lq_patchsize)
@@ -836,16 +836,16 @@ def large_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
         if i == 0:
             # pass
             img = modified_add_blur(img, sf=sf, ksize_param=random.randint(7, 8))
-        # elif i == 1:
-        #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
-        # elif i == 2:
-        #     if random.random() < poisson_prob:
-        #         img = add_Poisson_noise(img)
-        # elif i == 3:
-        #     if random.random() < speckle_prob:
-        #         img = add_speckle_noise(img)
-        # else:
-            # print('check the shuffle!')
+        elif i == 1:
+            img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
+        elif i == 2:
+            if random.random() < poisson_prob:
+                img = add_Poisson_noise(img)
+        elif i == 3:
+            if random.random() < speckle_prob:
+                img = add_speckle_noise(img)
+        else:
+            print('check the shuffle!')
 
     # print("after degredation: ", img.shape, hq.shape)
 
@@ -855,7 +855,7 @@ def large_text_small_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     # print("after resizing: ", img.shape, hq.shape)
 
     # add final JPEG compression noise
-    # img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
+    img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
 
     # random crop
     img, hq = random_crop(img, hq, sf, lq_patchsize)
@@ -918,17 +918,17 @@ def large_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
         if i == 0:
           # pass
             img = modified_add_blur(img, sf=sf, ksize_param=random.randint(8, 9))
-        # elif i == 1:
-        #     # pass
-        #     img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
-        # elif i == 2:
-        #     if random.random() < poisson_prob:
-        #         img = add_Poisson_noise(img)
-        # elif i == 3:
-        #     if random.random() < speckle_prob:
-        #         img = add_speckle_noise(img)
-        # else:
-            # print('check the shuffle!')
+        elif i == 1:
+            # pass
+            img = add_Gaussian_noise(img, noise_level1=2, noise_level2=25)
+        elif i == 2:
+            if random.random() < poisson_prob:
+                img = add_Poisson_noise(img)
+        elif i == 3:
+            if random.random() < speckle_prob:
+                img = add_speckle_noise(img)
+        else:
+            print('check the shuffle!')
 
     # print("after degredation: ", img.shape, hq.shape)
 
@@ -938,7 +938,7 @@ def large_text_large_size_pipeline(img, sf=4, shuffle_prob=0.5, use_sharp=True, 
     # print("after resizing: ", img.shape, hq.shape)
 
     # add final JPEG compression noise
-    # img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
+    img = modified_add_JPEG_noise(img, quality_factor=random.randint(80, 95))
 
     # random crop
     img, hq = random_crop(img, hq, sf, lq_patchsize)
